@@ -57,7 +57,7 @@ forever stop ....
 ```
 
 
-### POST request to endpoint /pdf
+### POST request to endpoint /
 
 ```
 {

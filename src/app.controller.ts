@@ -23,7 +23,7 @@ export class AppController {
     })
     return stream.pipe(response);
   }
-  @Post('pdf')
+  @Post('')
   @Header('Content-Type', 'application/pdf')
   @Header('Content-Disposition', 'attachment; filename=ledf.pdf')
   async postCreatePdf(@Res() response, @Body('formId') formId: string, @Body('submission') submission: any){
