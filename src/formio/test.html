@@ -1,0 +1,365 @@
+<head>
+  <link rel="stylesheet" href="./formio-full.min.css" />
+  <script src="./formio-full.min.js"></script>
+  <link rel="stylesheet" href="./custom.css" />
+  <script src="./fileLoader.js"></script>
+  <script src="./angular-translate.js"></script>
+  <script src='./ngStorage.min.js'></script>
+  <script>
+    angular
+      .module('formioApp', ['ui.bootstrap', 'ui.select', 'formio', 'pascalprecht.translate','ngStorage'])
+      .service('dataService', function($rootScope) {
+        console.log('submission', submission);
+        var _data = {
+          title: '',
+          perc: '0',
+          submissionData: {},
+          hasObject: false,
+          currentPage: 0,
+          pageLength: 0,
+          $scope: {},
+          ongoing: true,
+          forms: ['e'],
+          showNextButton: true,
+        };
+        this.GetSurveyCMS = function() {
+            return new Promise((resolve, reject) => {
+                resolve('yolo')
+            })
+        };
+        this.obj = _data;
+        this.$scope = $rootScope;
+        $rootScope.dataService = this;
+      })
+      .config([
+            'FormioProvider',
+            function (FormioProvider) {
+                FormioProvider.setAppUrl('https://vm-031.s3it.uzh.ch/formio');
+                FormioProvider.setBaseUrl('https://vm-031.s3it.uzh.ch/formio');
+            }
+        ])
+        .service('IsSaved', function () {
+            var savePressed = false;
+            this.save = savePressed;
+        })
+      .run([
+        '$rootScope',
+        'formioComponents',
+        '$timeout',
+        '$localStorage',
+        'dataService',
+        function($rootScope, formioComponents, $timeout, $translate, $localStorage, dataService) {
+            $rootScope.renderingFinished = false;
+            $rootScope.renderForm = false;
+            $rootScope.formBaselUrl = 'https://vm-031.s3it.uzh.ch/formio/form/';
+            $rootScope.formUrl = '';
+            localStorage.lang = 'de';
+            console.log('dataService', $rootScope.dataService);
+            let totalPages = 4419;
+            let renderedPages = 0;
+            function renderForm(){
+                console.log('start rendering');
+                $rootScope.displays = [
+                    {
+                    name: 'form',
+                    title: 'Form',
+                    },
+                    {
+                    name: 'wizard',
+                    title: 'Wizard',
+                    },
+                ];
+                $rootScope.renderForm = true;
+                $rootScope.$on('formRender', function(event, form) {
+                    console.log('rendered');
+                    renderedPages++;
+                    console.log('comp', renderedPages, totalPages)
+                    if(renderedPages === totalPages){
+                        // all pages rendered
+                        $rootScope.renderingFinished = true;
+                    }
+                });
+            }
+
+          $rootScope.inputFromExtern = function inputFromExtern(formId, submission) {
+            return inputFromExterning(formId, submission);
+          }
+          async function inputFromExterning(formId, submission) {
+            console.log('asyinc', formId, submission);
+                try{
+                    let result = await loadCMSFormsNew(formId);
+                    $rootScope.formUrl = $rootScope.formBaselUrl + formId;
+                    $rootScope.dataService.obj.submissionData = submission.survey;
+                    console.log('result', result);
+                    totalPages = result[0].components.length;
+                    console.log('after', $rootScope.formUrl, $rootScope.dataService.obj.submissionData)
+                    $rootScope.$evalAsync(renderForm());
+                }
+                catch(e){
+                    console.log(e)
+                }
+            }
+          }
+        //angular.element(document.getElementById('inputFromExternEntryPoint')).scope().$root.inputFromExtern('asdf')
+      ]);
+  </script>
+  <style>
+    @import url(https://fonts.googleapis.com/css?family=Roboto:300,400,500,700);
+    @import url(https://fonts.googleapis.com/icon?family=Material+Icons);
+
+    @font-face {
+        font-family: 'Roboto';
+        font-style: normal;
+        font-weight: 300;
+        src: local('Roboto'), local('Roboto-Light'), url(styles/Roboto-Light.ttf) format('truetype');
+    }
+    @font-face {
+        font-family: 'Roboto';
+        font-style: normal;
+        font-weight: 400;
+        src: local('Roboto'), local('Roboto-Regular'), url(styles/Roboto-Regular.ttf) format('truetype');
+    }
+    @font-face {
+        font-family: 'Roboto';
+        font-style: normal;
+        font-weight: 500;
+        src: local('Roboto'), local('Roboto-Medium'), url(styles/Roboto-Medium.ttf) format('truetype');
+    }
+    @font-face {
+        font-family: 'Roboto';
+        font-style: normal;
+        font-weight: 700;
+        src: local('Roboto'), local('Roboto-Bold'), url(styles/Roboto-Bold.ttf) format('truetype');
+    }
+    body {
+        color: #141414 !important;
+    }
+
+    .prevent-split {
+        background:#fff;
+        float:left;
+        width:100%;
+        height:auto;
+        display:block;
+    }
+
+    .col-center {
+        margin: 0 !important;
+        width: 100% !important;
+        padding-top:0 !important;
+        float:left !important;
+    }
+
+    .scrollmenu-wrapper {
+        width:100% !important;
+    }
+
+    .col-inner-lw-2 {
+        padding-left:0 !important;
+        padding-right:0 !important;
+    }
+
+
+    .no-show {
+        display:none;
+    }
+
+    .medi {
+        font-size:25px !important;
+        line-height:29px !important;
+    }
+
+    h3 {
+        font-size:20px !important;
+        line-height:24px !important;
+        font-weight:normal;
+        margin-bottom:17px !important;
+    }
+
+    .default {
+        font-size:20px !important;
+        line-height:24px !important;
+    }
+
+
+    .def label {
+        position: relative;
+        display: inline-block;
+        padding: 0 0 12px 2.5em !important;
+        height: auto !important;
+        line-height: 1.5;
+        float:left !important;;
+        width:100% !important;;
+    }
+
+    strong {
+        font-weight:normal !important;
+    }
+
+     input[type=checkbox] + label{
+         font-size: 25px;
+         background: #ffffff !important;
+         color: #141414!important;
+         border-radius: 0!important;
+         font-weight:normal!important;
+         border-left:1px solid #ccc!important;
+         border-right:none!important;
+         border-top:none!important;
+         border-bottom:1px solid #ccc!important;
+         margin-bottom:14px !important;
+         width:100%;
+         height: auto !important;
+     }
+
+     input[type=radio] + label{
+         font-size: 25px;
+         background: #ffffff !important;
+         color: #141414!important;
+         border-radius: 0!important;
+         font-weight:normal!important;
+         border-left:1px solid #ccc!important;
+         border-right:none!important;
+         border-top:none!important;
+         border-bottom:1px solid #ccc!important;
+         margin-bottom:14px !important;
+         width:100%;
+         height: auto !important;
+     }
+
+    .def input[type="checkbox"]:checked + label::before,
+    .def input[type="radio"]:checked + label::before {
+        background: #414141;
+        border-color: #414141;
+    }
+
+    .def input[type=radio] + label::after {
+        background: #414141;
+    }
+
+    .def input[type="radio"] + label::before {
+        margin-left:6px;
+        position:absolute;
+        right:0;
+    }
+
+    .def input[type="radio"] + label::after {
+        margin-left:6px;
+    }
+
+    .def input[type="checkbox"] + label::before {
+        border-radius: 3px !important;
+        margin-left:6px;
+    }
+
+
+    .def input[type="checkbox"] + label::after {
+        content: "√" !important;
+        margin-left:6px;
+    }
+
+    input[type="text"] {
+        font-size: 25px !important;
+        width:100%;
+        float:left;
+        margin-bottom:14px;
+    }
+
+    textarea.def {
+        resize: none;
+        font-size: 25px !important;
+        line-height:normal !important;
+    }
+
+    textarea.def {
+        width:100%;
+        border: none !important;
+        padding: 0 0px !important;
+        line-height: auto !important;
+        background-image: none !important;
+        height: auto !important;
+    }
+
+
+
+    .page-template {
+        font-family: 'Open Sans', sans-serif;
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+    }
+    .offsite-col-diary {
+        margin-bottom: 0 !important;
+        margin-top: 0 !important;
+        display: block !important;
+        padding: 0 !important;
+        width: 100% !important;
+        margin-left: 0 !important;
+        float: left !important;
+        clear:both !important;
+    }
+
+
+    .page-template .footer {
+        font-family: 'Roboto', sans-serif;
+        position: absolute;
+        bottom: 35px;
+        left: 30px;
+        right: 30px;
+        margin-top: 20px !important;
+        margin-bottom: 20px !important;
+        margin-outside: 20px !important;
+    }
+    .k-widget {
+        font-family: 'Open Sans', sans-serif;
+    }
+
+    .name::before {
+        content: '{{headerPDF}}';
+        font-family: 'Roboto', sans-serif;
+        position: absolute;
+        top: 12px;
+        left: 30px;
+        font-size: 18px;
+    }
+    .header {
+        font-family: 'Roboto', sans-serif;
+        position: absolute;
+        top: 38px;
+        left: 30px;
+        right: 30px;
+        margin-bottom: 20px !important;
+        margin-outside: 20px !important;
+        border-bottom: 1px solid #888;
+        font-size: 18px;
+    }
+    .scrollmenu {
+    visibility: hidden;
+    }
+    .scrollmenu-bg {
+        visibility: hidden;
+    }
+    .scrollmenu-wrapper {
+        visibility: hidden;
+    }
+    .def input[type=radio] + label::after {
+        visibility: hidden;
+    }
+</style>
+</head>
+
+<body>
+  <div class="page-content" ng-app="formioApp">
+    <div id="temp-container">
+            <div id='inputFromExternEntryPoint'>
+                <div ng-if="renderingFinished" id="renderingNotificator"></div>
+                <div class="k-widget">
+                    <div id='placeholderFormio'>
+                       <formio src="formUrl"></formio>
+                    </div>
+                </div>
+            </div>
+    </div>
+  </div>
+</body>
