@@ -11,7 +11,7 @@ async function bootstrap() {
   app.use(bodyParser.json({limit: '50mb'}));
   app.useGlobalPipes(new ValidationPipe);
   app.enableCors();
-  await app.listen(3000, '0.0.0.0');
+  await app.listen(3004, '0.0.0.0');
 }
 //bootstrap();
 
