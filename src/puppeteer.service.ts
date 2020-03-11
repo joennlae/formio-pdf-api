@@ -1,6 +1,7 @@
-import * as puppeteer from 'puppeteer'
+import * as puppeteer from 'puppeteer';
 import * as path from 'path';
 import * as fs from 'fs';
+import FormLoaderService from './formLoader.service';
 export class PuppeteerService {
     started: boolean = false;
     browser = null;
@@ -16,11 +17,13 @@ export class PuppeteerService {
         }
         catch (e) { console.log(e) }
     }
-    async createPDF(formId: string, submission: any) {
+    async createPDF(formId: string, submission: any, lang: string) {
         console.log('location', process.cwd());
         if (this.started) {
             try {
                 const page = await this.browser.newPage();
+                let formData = await FormLoaderService.loadCMSFormsNew(formId);
+                console.log('test', formData[0].transTitle[lang]);
                 page.on('console', msg => console.log('PAGE LOG:', msg.text()))
                 await page.setDefaultNavigationTimeout(0);
                 await page.addScriptTag({
@@ -282,14 +285,20 @@ export class PuppeteerService {
                 })
                 await page.goto(path.join('file:///', process.cwd(), 'dist', 'formio/test.html'), { waitUntil: 'networkidle0' });
                 //angular.element(document.getElementById('inputFromExternEntryPoint')).scope().$root.inputFromExtern('5dc2e1cda3b9b916ce42c5b1', submissionTest)
-                await page.evaluate(({ formId, submission }) => {
-                    console.log('starting submission', formId, submission);
+                await page.evaluate(({ formId, submission, lang }) => {
+                    console.log('starting submission', formId, submission, lang);
 
                     //@ts-ignore
-                    angular.element(document.getElementById('inputFromExternEntryPoint')).scope().$root.inputFromExtern(formId, submission)
-                }, { formId, submission })
-                await page.waitFor('#renderingNotificator', { timeout: 60000 });
-                await page.pdf({ path: 'dist/tmp/msr_' + formId + '.pdf', format: 'A4', scale: 0.4 , margin: { top: '1cm', right: '1cm', left: '1cm', bottom: '1cm'}, printBackground: true });
+                    angular.element(document.getElementById('inputFromExternEntryPoint')).scope().$root.inputFromExtern(formId, submission, lang )
+                }, { formId, submission, lang })
+                await page.waitFor('#renderingNotificator', { timeout: 180000 });
+                await page.pdf({ path: 'dist/tmp/msr_' + formId + '.pdf', format: 'A4', scale: 0.4 , margin: { top: '1cm', right: '1cm', left: '1cm', bottom: '1cm'}, printBackground: true, displayHeaderFooter: true,
+                headerTemplate : `
+                <div style="width:100%; font-size:8px!important;color:#6d6d6d!important;padding-left:10px;text-align:left; margin-top: -5px;"><span>` + formData[0].transTitle[lang] +"</span></div>",
+                footerTemplate : `
+                    <div style="width:100%; font-size:8px!important;color:#6d6d6d!important;padding-right:10px;text-align:right; margin-bottom: -5px;">
+                        <span class='pageNumber'></span>/<span class='totalPages'></span>
+                    </div>`});
                 await page.close()
             }
             catch (e) {

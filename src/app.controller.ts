@@ -23,11 +23,11 @@ export class AppController {
     })
     return stream.pipe(response);
   }
-  @Post('')
+  @Post('pdf')
   @Header('Content-Type', 'application/pdf')
   @Header('Content-Disposition', 'attachment; filename=ledf.pdf')
-  async postCreatePdf(@Res() response, @Body('formId') formId: string, @Body('submission') submission: any){
-    let stream = await this.appService.postCreatePDF(formId, submission);
+  async postCreatePdf(@Res() response, @Body('formId') formId: string, @Body('submission') submission: any, @Body('lang') lang: string){
+    let stream = await this.appService.postCreatePDF(formId, submission, lang);
     stream.on('close', function(){
       unlink(path.join(__dirname, '/tmp/msr_' + formId + '.pdf'), function() {});
     })

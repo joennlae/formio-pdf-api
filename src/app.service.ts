@@ -19,8 +19,8 @@ export class AppService {
     let file = createReadStream(path.join(__dirname, '/tmp/msr_' + query.formId + '.pdf'));
     return file;
   }
-  async postCreatePDF(formId: string, submission: any) {
-    await this.puppeteerService.createPDF(formId, submission);
+  async postCreatePDF(formId: string, submission: any, lang: string) {
+    await this.puppeteerService.createPDF(formId, submission, lang);
     let file = createReadStream(path.join(__dirname, '/tmp/msr_' + formId + '.pdf'));
     return file;
   }

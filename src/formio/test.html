@@ -81,12 +81,13 @@
                 });
             }
 
-          $rootScope.inputFromExtern = function inputFromExtern(formId, submission) {
-            return inputFromExterning(formId, submission);
+          $rootScope.inputFromExtern = function inputFromExtern(formId, submission, lang) {
+            return inputFromExterning(formId, submission, lang);
           }
-          async function inputFromExterning(formId, submission) {
-            console.log('asyinc', formId, submission);
+          async function inputFromExterning(formId, submission, lang) {
+            console.log('asyinc', formId, submission, lang);
                 try{
+                    localStorage.lang = lang;
                     let result = await loadCMSFormsNew(formId);
                     $rootScope.formUrl = $rootScope.formBaselUrl + formId;
                     $rootScope.dataService.obj.submissionData = submission.survey;
