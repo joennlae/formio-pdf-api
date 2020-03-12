@@ -8,6 +8,8 @@ import * as cluster from 'cluster';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  const httpServer = app.getHttpServer();
+  httpServer.setTimeout(600000);
   app.use(bodyParser.json({limit: '50mb'}));
   app.useGlobalPipes(new ValidationPipe);
   app.enableCors();
