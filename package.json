@@ -32,7 +32,7 @@
     "fs": "^0.0.1-security",
     "leaflet": "^1.6.0",
     "leaflet-image": "^0.4.0",
-    "node-fetch": "^2.6.0",
+    "node-fetch": "^2.6.1",
     "path": "^0.12.7",
     "puppeteer": "^2.0.0",
     "reflect-metadata": "^0.1.13",
